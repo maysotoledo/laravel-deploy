@@ -42,7 +42,7 @@ php artisan migrate
 ```
 instalar Breezer
 ```sh
-omposer require laravel/breeze --dev
+composer require laravel/breeze --dev
 
 php artisan breeze:install
 ```

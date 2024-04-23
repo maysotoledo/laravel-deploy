@@ -40,6 +40,12 @@ Rodar as migrations
 ```sh
 php artisan migrate
 ```
+instalar Breezer
+```sh
+omposer require laravel/breeze --dev
+
+php artisan breeze:install
+```
 
 Acesse o projeto
 [http://localhost:8000](http://localhost:8000)

@@ -71,6 +71,8 @@ COPY docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
 # Defina o diretório de trabalho padrão
 WORKDIR /var/www/html
 
+EXPOSE 9000
+
 USER $user
 
 

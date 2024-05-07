@@ -20,8 +20,10 @@ services:
   nginx:
     image: nginx:alpine
 #    restart: unless-stopped
+    expose:
+      - "9000"
     ports:
-      - "8000:80"
+      - "9000:9000"
     volumes:
       - ./:/var/www
       - ./docker/nginx/:/etc/nginx/conf.d/

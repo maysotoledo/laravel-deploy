@@ -4,10 +4,10 @@
 ### Passo a passo
 Clone Repositório
 ```sh
-git clone https://github.com/ThiagolFPereira/setup-docker-laravel-11.git
+git clone https://github.com/maysotoledo/laravel-producao.git
 ```
 ```sh
-cd setup-docker-laravel-11
+cd laravel-pro
 ```
 
 Suba os containers do projeto
@@ -26,7 +26,7 @@ Acesse o container app
 docker-compose exec app bash
 ```
 
-Instale as dependências do projeto
+Instale as dependências do projeto dentro do container
 ```sh
 composer install
 ```
@@ -48,5 +48,6 @@ php artisan breeze:install
 ```
 
 Acesse o projeto
-[http://localhost:8000](http://localhost:8000)
-# laravel11
+[http://localhost:9000](http://localhost:9000)
+
+# laravel11 em produçao para servidor VPS

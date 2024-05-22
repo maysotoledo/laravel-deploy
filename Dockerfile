@@ -1,79 +1,68 @@
-# Use a imagem oficial do PHP com o FPM (FastCGI Process Manager)
+# Use a imagem oficial do PHP com FPM (FastCGI Process Manager)
 FROM php:8.3-fpm
 
-# set your user name, ex: user=mayso
-ARG user=mayso
-ARG uid=1000
+# Atualiza a lista de pacotes e instala as dependências necessárias
+RUN apt-get update && apt-get install -y \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    libzip-dev \
+    unzip \
+    git \
+    curl \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    libnss3-tools \
+    jq \
+    xsel \
+    nodejs \
+    npm \
+    libicu-dev \
+    zlib1g-dev \
+    libmagickwand-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Instale as dependências necessárias
-RUN apt-get update && \
-    apt-get install -y \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libpng-dev \
-        libzip-dev \
-        unzip \
-        git \
-        curl \
-    	libonig-dev \
-    	libxml2-dev \
-    	zip \
-    	libnss3-tools \
-    	jq \
-    	xsel \
-    	nodejs \
-    	npm
+# Configura e instala as extensões PHP necessárias
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql zip mbstring exif pcntl bcmath sockets intl
 
-
-
-# Instale as extensões PHP necessárias
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
-    docker-php-ext-install -j$(nproc) gd pdo pdo_mysql zip mbstring exif pcntl bcmath gd sockets
-
-# Instale o composer globalmente
+# Instala o Composer globalmente
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Create system user to run Composer and Artisan Commands
-RUN useradd -G www-data,root -u $uid -d /home/$user $user
-RUN mkdir -p /home/$user/.composer && \
-    chown -R $user:$user /home/$user
-
-# Install redis
+# Instala a extensão Redis
 RUN pecl install -o -f redis \
-    &&  rm -rf /tmp/pear \
-    &&  docker-php-ext-enable redis
+    && docker-php-ext-enable redis
 
-# Instale a biblioteca Intervention Image usando o Composer
+# Instala a biblioteca Intervention Image usando o Composer
 RUN composer require intervention/image
 
-# Instale as dependências necessárias para a extensão Imagick
-RUN apt-get update && \
-    apt-get install -y libmagickwand-dev --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/*
+# Instala a extensão Imagick do PHP
+RUN pecl install imagick \
+    && docker-php-ext-enable imagick
 
-# Instale a extensão Imagick do PHP
-RUN pecl install imagick && \
-    docker-php-ext-enable imagick
+# Limpa o cache de pacotes
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Limpe o cache de pacotes
-RUN apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Configure o PHP-FPM
+# Copia as configurações PHP-FPM
 COPY docker/php/php-fpm.conf /usr/local/etc/php-fpm.d/zzz_custom.conf
 
-# Configure o PHP
+# Copia as configurações PHP
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/zzz_custom.ini
 
-# Copy custom configurations PHP
+# Copia configurações PHP personalizadas
 COPY docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
 
-# Defina o diretório de trabalho padrão
+# Cria um usuário do sistema para executar os comandos do Composer e Artisan
+ARG user=mayso
+ARG uid=1000
+RUN useradd -G www-data,root -u $uid -d /home/$user $user \
+    && mkdir -p /home/$user/.composer \
+    && chown -R $user:$user /home/$user
+
+# Define o diretório de trabalho padrão
 WORKDIR /var/www/html
 
-EXPOSE 9000
-
+# Altera o usuário para o usuário criado
 USER $user
-
-
 
